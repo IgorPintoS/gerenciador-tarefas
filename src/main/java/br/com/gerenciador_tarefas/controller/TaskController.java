@@ -1,6 +1,6 @@
-package br.com.tarefas.controller;
+package br.com.gerenciador_tarefas.controller;
 
-import br.com.tarefas.model.Task;
+import br.com.gerenciador_tarefas.model.Task;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;

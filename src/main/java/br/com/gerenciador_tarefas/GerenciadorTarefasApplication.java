@@ -1,4 +1,4 @@
-package br.com.tarefas.gerenciador_tarefas;
+package br.com.gerenciador_tarefas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package br.com.tarefas.gerenciador_tarefas;
+package br.com.gerenciador_tarefas.gerenciador_tarefas;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
