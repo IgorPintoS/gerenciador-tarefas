@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+import lombok.Getter;
 
 
 @Data // Anotação do Lombok que cria getters, setters, toString, etc. automaticamente.
@@ -17,5 +18,10 @@ public class Task {
 
     private String description;
     private String priority;
-    private boolean completed;
+    private Boolean completed; //alterado para permitir null
+
+    //overload no get, para permitir verificar se o dado é diferente de null no controller
+    public Boolean getCompleted() {
+        return completed;
+    }
 }
