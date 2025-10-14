@@ -2,6 +2,7 @@ package br.com.gerenciador_tarefas.controller;
 
 import br.com.gerenciador_tarefas.model.Task;
 import br.com.gerenciador_tarefas.repository.TaskRepository;
+import br.com.gerenciador_tarefas.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,16 +13,16 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class TaskController {
 
-    private final TaskRepository taskRepository;
+    private final TaskService taskService;
 
-    public TaskController(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository; //injeção de dependencia via construtor, boa prática
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService; //injeção de dependencia via construtor, boa prática -> delegando agora para camada services
     }
     //é uma boa prática retornar nos métodos controllers um ResponseEntity personalizavel ao invés de delegar para o spring
 
     @GetMapping
     public ResponseEntity<List<Task>> findAll() {
-        List<Task> taskList = taskRepository.findAll(); //retorna a lista de tasks.
+        List<Task> taskList = taskService.findAllTasks(); //retorna a lista de tasks.
 
         if(taskList.isEmpty()) { //verifica se não está vazia, estando dispara um HTTP 204, retornou uma lista vazia.
             return ResponseEntity.noContent().build();
@@ -31,8 +32,8 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<Task> findTaskById(@PathVariable Long id) { //anotação lincando com o {id}
-        Optional<Task> taskOptional = taskRepository.findById(id); //buscando pelo Id, sempre Optional
+    public ResponseEntity<Task> findById(@PathVariable Long id) { //anotação lincando com o {id}
+        Optional<Task> taskOptional = taskService.findTaskById(id); //buscando pelo Id, sempre Optional
 
         if(taskOptional.isEmpty()) { //verificando se está vazio, retornar not found 404
             return ResponseEntity.notFound().build();
