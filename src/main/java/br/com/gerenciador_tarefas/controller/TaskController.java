@@ -18,79 +18,47 @@ public class TaskController {
     public TaskController(TaskService taskService) {
         this.taskService = taskService; //injeção de dependencia via construtor, boa prática -> delegando agora para camada services
     }
-    //é uma boa prática retornar nos métodos controllers um ResponseEntity personalizavel ao invés de delegar para o spring
+    //simplificando os métodos, delegando para o services.
 
     @GetMapping
     public ResponseEntity<List<Task>> findAll() {
         List<Task> taskList = taskService.findAllTasks(); //retorna a lista de tasks.
-
-        if(taskList.isEmpty()) { //verifica se não está vazia, estando dispara um HTTP 204, retornou uma lista vazia.
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok(taskList); //senão retorna o HTTP 200 junto com a lista.
     }
 
     @GetMapping("/tasks/{id}")
     public ResponseEntity<Task> findById(@PathVariable Long id) { //anotação lincando com o {id}
-        Optional<Task> taskOptional = taskService.findTaskById(id); //buscando pelo Id, sempre Optional
+        Task taskOptional = taskService.findTaskById(id); //buscando pelo Id, sempre Optional
 
-        if(taskOptional.isEmpty()) { //verificando se está vazio, retornar not found 404
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(taskOptional.get()); //senão retorna HTTP 200 junto com objeto task
+        return ResponseEntity.ok(taskOptional); //senão retorna HTTP 200 junto com objeto task
     }
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task) { //anotação informando que é necessário um corpo na requisição
-        Task createdTask = taskRepository.save(task); //salvando a task no bd
+        Task createdTask = taskService.createNewTask(task); //salvando a task no bd
 
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED); //retornando um created, com os dados
     }
 
     @PutMapping("/tasks/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskUpdated) { //anotação lincando com o {id}, e dizendo que é necessário um corpo com os novos dados
-        Optional<Task> taskOptional = taskRepository.findById(id);
+        Task updatedTask = taskService.updateExistsTask(id, taskUpdated);
 
-        if(taskOptional.isEmpty()) { //verificando se o id existe
-            return ResponseEntity.notFound().build();
-        }
-
-        taskOptional.get().setDescription(taskUpdated.getDescription()); //setando os campos alterado ou não.
-        taskOptional.get().setPriority(taskUpdated.getPriority());
-        Task taskSaved = taskRepository.save(taskOptional.get()); // salvando a nova task
-
-        return ResponseEntity.ok(taskSaved);
+        return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) { //anotação lincando com o {id}
-        Optional<Task> taskOptional = taskRepository.findById(id);
-
-        if(taskOptional.isEmpty()) { //verificando se o id existe
-            return ResponseEntity.notFound().build();
-        }
-
-        taskRepository.deleteById(id); //deletando pelo id
+        taskService.deleteTaskById(id); //deletando pelo id
 
         return ResponseEntity.noContent().build(); //retornando um no content pois o registro não existe mais, boa prática
     }
 
     @PatchMapping("/tasks/{id}")
     public ResponseEntity<Task> situationUpdateTask(@PathVariable Long id, @RequestBody Task situationUpdated) {
-        Optional<Task> taskOptional = taskRepository.findById(id);
+        Task taskCompleted = taskService.completeTask(id, situationUpdated);
 
-        if(taskOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (situationUpdated.getCompleted() != null) {
-            taskOptional.get().setCompleted(situationUpdated.getCompleted());
-        }
-
-        Task taskComplete = taskRepository.save(taskOptional.get());
-
-        return ResponseEntity.ok(taskComplete);
+        return ResponseEntity.ok(taskCompleted);
     }
 }

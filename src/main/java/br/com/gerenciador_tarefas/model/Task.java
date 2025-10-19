@@ -5,8 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import lombok.Getter;
-
 
 @Data // Anotação do Lombok que cria getters, setters, toString, etc. automaticamente.
 @Entity
