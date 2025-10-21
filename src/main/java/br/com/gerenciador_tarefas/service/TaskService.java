@@ -1,6 +1,6 @@
 package br.com.gerenciador_tarefas.service;
 
-import br.com.gerenciador_tarefas.exception.TaskDescpritionNullOrEmpty;
+import br.com.gerenciador_tarefas.exception.TaskDescriptionNullOrEmpty;
 import br.com.gerenciador_tarefas.exception.TaskNotFoundException;
 import br.com.gerenciador_tarefas.exception.TaskSameDescriptionExistException;
 import br.com.gerenciador_tarefas.exception.TasksEmptyException;
@@ -41,7 +41,7 @@ public class TaskService {
 
     public Task createNewTask(Task newTask) {
         if(newTask.getDescription() == null || newTask.getDescription().isEmpty()) {
-            throw new TaskDescpritionNullOrEmpty("Task description is empty.");
+            throw new TaskDescriptionNullOrEmpty("Task description is empty.");
         }
 
         Optional<Task> taskOptional = taskRepository.findTaskByDescriton(newTask.getDescription());
