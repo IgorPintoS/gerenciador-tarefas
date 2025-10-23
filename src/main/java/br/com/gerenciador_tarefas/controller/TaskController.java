@@ -1,13 +1,17 @@
 package br.com.gerenciador_tarefas.controller;
 
+import br.com.gerenciador_tarefas.dto.TaskCompleteDTO;
+import br.com.gerenciador_tarefas.dto.TaskCreateDTO;
+import br.com.gerenciador_tarefas.dto.TaskResponseDTO;
+import br.com.gerenciador_tarefas.dto.TaskUpdateDTO;
 import br.com.gerenciador_tarefas.model.Task;
-import br.com.gerenciador_tarefas.repository.TaskRepository;
 import br.com.gerenciador_tarefas.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -21,31 +25,71 @@ public class TaskController {
     //simplificando os métodos, delegando para o services.
 
     @GetMapping
-    public ResponseEntity<List<Task>> findAll() {
+    public ResponseEntity<List<TaskResponseDTO>> findAll() {
         List<Task> taskList = taskService.findAllTasks(); //retorna a lista de tasks.
+        List<TaskResponseDTO> taskResponseDTOList = new ArrayList<>();
 
-        return ResponseEntity.ok(taskList); //senão retorna o HTTP 200 junto com a lista.
+        for (Task task : taskList) { //refatorar para stream()
+            TaskResponseDTO taskResponseDTO = new TaskResponseDTO(task.getId(),
+                    task.getDescription(),
+                    task.getPriority(),
+                    task.getCompleted(),
+                    task.getDeadline());
+
+            taskResponseDTOList.add(taskResponseDTO);
+        }
+
+        return ResponseEntity.ok(taskResponseDTOList); //retorna o HTTP 200 junto com a lista.
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<Task> findById(@PathVariable Long id) { //anotação lincando com o {id}
-        Task taskOptional = taskService.findTaskById(id); //buscando pelo Id, sempre Optional
+    public ResponseEntity<TaskResponseDTO> findById(@PathVariable Long id) { //anotação lincando com o {id}
+        Task task = taskService.findTaskById(id); //buscando pelo Id
 
-        return ResponseEntity.ok(taskOptional); //senão retorna HTTP 200 junto com objeto task
+        TaskResponseDTO taskResponseDTO = new TaskResponseDTO(task.getId(),
+                task.getDescription(),
+                task.getPriority(),
+                task.getCompleted(),
+                task.getDeadline());
+
+        return ResponseEntity.ok(taskResponseDTO); //retorna HTTP 200 junto com objeto task
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) { //anotação informando que é necessário um corpo na requisição
-        Task createdTask = taskService.createNewTask(task); //salvando a task no bd
+    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) { //anotação informando que é necessário um corpo na requisição
+        Task createdTask = new Task(); //refatorado para utilizar o DTO, e não expor dados ao cliente
+        createdTask.setId(taskCreateDTO.id());
+        createdTask.setDescription(taskCreateDTO.description());
+        createdTask.setPriority(taskCreateDTO.priority());
+        createdTask.setDeadline(taskCreateDTO.deadline());
 
-        return new ResponseEntity<>(createdTask, HttpStatus.CREATED); //retornando um created, com os dados
+        Task task = taskService.createNewTask(createdTask); //salvando a task no bd
+
+        TaskResponseDTO taskDTO = new TaskResponseDTO(task.getId(),
+                task.getDescription(),
+                task.getPriority(),
+                task.getCompleted(),
+                task.getDeadline());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskDTO); //retornando um created, com os dados
     }
 
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskUpdated) { //anotação lincando com o {id}, e dizendo que é necessário um corpo com os novos dados
-        Task updatedTask = taskService.updateExistsTask(id, taskUpdated);
+    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdatedDTO) { //anotação lincando com o {id}, e dizendo que é necessário um corpo com os novos dados
+        Task updatedTask = new Task();
+        updatedTask.setDescription(taskUpdatedDTO.description());
+        updatedTask.setPriority(taskUpdatedDTO.priority());
+        updatedTask.setDeadline(taskUpdatedDTO.deadline());
 
-        return ResponseEntity.ok(updatedTask);
+        Task task = taskService.updateExistsTask(id, updatedTask);
+
+        TaskResponseDTO taskDTO = new TaskResponseDTO(task.getId(),
+                task.getDescription(),
+                task.getPriority(),
+                task.getCompleted(),
+                task.getDeadline());
+
+        return ResponseEntity.ok(taskDTO);
     }
 
     @DeleteMapping("/tasks/{id}")
@@ -56,9 +100,18 @@ public class TaskController {
     }
 
     @PatchMapping("/tasks/{id}")
-    public ResponseEntity<Task> situationUpdateTask(@PathVariable Long id, @RequestBody Task situationUpdated) {
-        Task taskCompleted = taskService.completeTask(id, situationUpdated);
+    public ResponseEntity<TaskResponseDTO> situationUpdateTask(@PathVariable Long id, @RequestBody TaskCompleteDTO situationUpdatedDTO) {
+        Task taskCompleted = new Task();
+        taskCompleted.setCompleted(situationUpdatedDTO.completed());
 
-        return ResponseEntity.ok(taskCompleted);
+        Task task = taskService.completeTask(id, taskCompleted);
+
+        TaskResponseDTO taskDTO = new TaskResponseDTO(task.getId(),
+                task.getDescription(),
+                task.getPriority(),
+                task.getCompleted(),
+                task.getDeadline());
+
+        return ResponseEntity.ok(taskDTO);
     }
 }

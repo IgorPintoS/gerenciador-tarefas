@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
+import java.time.LocalTime;
+
 @Data // Anotação do Lombok que cria getters, setters, toString, etc. automaticamente.
 @Entity
 public class Task {
@@ -17,6 +19,8 @@ public class Task {
     private String description;
     private String priority;
     private Boolean completed; //alterado para permitir null
+    private LocalTime createdDateTime;
+    private String deadline;
 
     //overload no get, para permitir verificar se o dado é diferente de null no controller
     public Boolean getCompleted() {

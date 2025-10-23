@@ -50,6 +50,8 @@ public class TaskService {
             throw new TaskSameDescriptionExistException("A task with this description already exists.");
         }
 
+        newTask.setCompleted(false);
+
         return taskRepository.save(newTask);
     }
     //Usando o método da classe, pois este busca no banco e lança a exception, então não preciso utilizar o findById novamente.
@@ -58,6 +60,7 @@ public class TaskService {
 
         taskUpdate.setDescription(updatedTask.getDescription());
         taskUpdate.setPriority(updatedTask.getPriority());
+        taskUpdate.setDeadline(updatedTask.getDeadline());
 
         return taskRepository.save(taskUpdate);
     }
