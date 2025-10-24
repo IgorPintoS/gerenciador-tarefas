@@ -22,8 +22,5 @@ public class Task {
     private LocalTime createdDateTime;
     private String deadline;
 
-    //overload no get, para permitir verificar se o dado é diferente de null no controller
-    public Boolean getCompleted() {
-        return completed;
-    }
 }
+
